@@ -53,14 +53,14 @@ def logpmf(k: ArrayLike, n: ArrayLike, a: ArrayLike, b: ArrayLike,
     :func:`jax.scipy.stats.betabinom.pmf`
   """
   k, n, a, b, loc = promote_args_inexact("betabinom.logpmf", k, n, a, b, loc)
-  y = lax.sub(lax.floor(k), loc)
+  y = lax.floor(lax.sub(k, loc))
   one = _lax_const(y, 1)
   zero = _lax_const(y, 0)
   combiln = lax.neg(lax.add(lax.log1p(n), betaln(lax.add(lax.sub(n,y), one), lax.add(y,one))))
   beta_lns = lax.sub(betaln(lax.add(y,a), lax.add(lax.sub(n,y),b)), betaln(a,b))
   log_probs = lax.add(combiln, beta_lns)
   log_probs = jnp.where(jnp.logical_and(lax.eq(y, zero), lax.eq(n, zero)), 0., log_probs)
-  y_cond = jnp.logical_or(jnp.logical_or(lax.lt(y, lax.neg(loc)), lax.gt(y, n)),
+  y_cond = jnp.logical_or(jnp.logical_or(lax.lt(y, zero), lax.gt(y, n)),
                           lax.le(lax.add(y, a), zero))
   log_probs = jnp.where(y_cond, -np.inf, log_probs)
   n_a_b_cond = jnp.logical_or(jnp.logical_or(lax.lt(n, zero), lax.le(a, zero)), lax.le(b, zero))

@@ -113,6 +113,8 @@ When releasing, please add the new-release-boilerplate to docs/pallas/CHANGELOG.
     {func}`jax.random.split`, and {func}`jax.random.fold_in`.
 
 * Bug fixes
+  * Fixed {func}`jax.scipy.stats.betabinom.logpmf` and
+    {func}`jax.scipy.stats.betabinom.pmf` for negative and non-integer `loc`.
   * Fixed the gradient of {func}`jax.numpy.ldexp` at `x = 0.0`, which previously
     returned `1.0` instead of `2**n`.
   * {func}`jax.nn.scaled_dot_general` keeps its FP8/FP4 quantization when XLA

@@ -1488,6 +1488,19 @@ class LaxBackedScipyStatsTests(jtu.JaxTestCase):
     self.assertEqual(lsp_stats.betabinom.logpmf(0, 0, 10, 5, 0),
                      osp_stats.betabinom.logpmf(0, 0, 10, 5, 0))
 
+  @jtu.sample_product(
+    fun=["logpmf", "pmf"], n=[0, 4], dtype=jtu.dtypes.floating,
+  )
+  def testBetaBinomLoc(self, fun, n, dtype):
+    loc = np.array([-2, -0.5, 0, 0.5, 2], dtype=dtype)[:, None]
+    k = loc + np.arange(-1, n + 2, dtype=dtype)
+    args_maker = lambda: [k, n, 2, 3, loc]
+    scipy_fun = getattr(osp_stats.betabinom, fun)
+    lax_fun = getattr(lsp_stats.betabinom, fun)
+    self._CheckAgainstNumpy(scipy_fun, lax_fun, args_maker,
+                            check_dtypes=False, tol=5e-4)
+    self._CompileAndCheck(lax_fun, args_maker)
+
   @genNamedParametersNArgs(4)
   def testBinomLogPmf(self, shapes, dtypes):
     rng = jtu.rand_positive(self.rng())
